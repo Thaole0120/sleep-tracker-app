@@ -22,6 +22,7 @@ class SleepRecord(db.Model):
     sleep_duration = db.Column(db.Float, nullable=False)  # Duration of sleep in hours
     sleep_quality = db.Column(db.String(20), nullable=False)  # Quality of sleep (e.g., Good, Average, Poor)
     wakeup_time = db.Column(db.String(10), nullable=False)  # Time the user woke up (HH:MM format)
+    completed = db.Column(db.Boolean, default=False)  # Track if record is "complete"
     created_at = db.Column(db.DateTime, default=datetime.utcnow)  # Timestamp of record creation
     
     # Add the repr method
@@ -61,6 +62,14 @@ def delete(record_id):
     db.session.commit()
     return redirect(url_for('index'))
 
-# Main entry point
+# Route to toggle completion status
+@app.route('/toggle/<int:record_id>')
+def toggle(record_id):
+    record = SleepRecord.query.get_or_404(record_id)
+    record.completed = not record.completed  # Flip the boolean
+    db.session.commit()
+    return redirect(url_for('index'))
+
+# Run the app
 if __name__ == '__main__':
     app.run(debug=True)
